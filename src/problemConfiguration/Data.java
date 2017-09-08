@@ -79,13 +79,11 @@ public class Data {
 		double azschutzstunden; 
 		int azschutzwochen;
 		
-		Row rwIn = shIn.getRow(44);
-		Cell clIn = rwIn.getCell(0);
+		Row rwIn = shIn.getRow(0);
+		Cell clIn = rwIn.getCell(50);
 		
 		double lsRow = clIn.getNumericCellValue();
 		int ilsRow = (int)(lsRow);
-		
-//		Person[] p = new Person[ilsRow];
 		
 		for(int i = 1;i <= ilsRow; i++){
 			int column = 0; 
@@ -93,7 +91,7 @@ public class Data {
 			
 			clIn = rwIn.getCell((column + 0));
 			name = clIn.getStringCellValue();
-			System.out.println(clIn.toString());
+			if(name == "")break;
 			
 			clIn = rwIn.getCell(column + 1);
 			qualification = clIn.getStringCellValue();
@@ -166,11 +164,10 @@ public class Data {
 		rwIn = shIn.getRow(0);
 		clIn = rwIn.getCell(8);	//Tage!I1 = 0:8
 		//Gehört zu Parameter
-		Parameter.ctDs = (int)clIn.getNumericCellValue();
+		int timehorizon = (int)clIn.getNumericCellValue();
+		timehorizon = 50;
 		
-		int days = Parameter.ctDs;
-		
-		for(int i = startRow; i <= (startRow + days); i++){	//Startzeile + Anzahl Tagee (Parameter) 
+		for(int i = startRow; i < (startRow + timehorizon); i++){	//Startzeile + Anzahl Tagee (Parameter) 
 			int column = startColumn; 
 			rwIn = shIn.getRow(i);
 			
@@ -180,6 +177,8 @@ public class Data {
 			month = rwIn.getCell(column + 3).getStringCellValue();
 			group = rwIn.getCell(column + 4).getStringCellValue();
 			week = (int)rwIn.getCell(column + 5).getNumericCellValue();
+			
+			if(weekday == "") break;
 			
 			Tage.add(new Tag(day, weekday, month, week, group, feiertag));
 		}
@@ -210,10 +209,9 @@ public class Data {
 		
 		int startRow = 1;		//Ab Zeile 2
 		int startColumn = 0;	//Ab Spalte A
-//		int anzahlDienste = (int)shIn.getRow(49).getCell(0).getNumericCellValue();
-		int anzahlDienste = 31;
+		int anzahlDienste = (int)shIn.getRow(0).getCell(29).getNumericCellValue();
 		
-		for(int i = startRow; i <= (startRow + anzahlDienste); i++){
+		for(int i = startRow; i < (startRow + anzahlDienste); i++){
 			rwIn = shIn.getRow(i);
 			name = rwIn.getCell(startColumn + 0).getStringCellValue();
 			group = rwIn.getCell(startColumn + 1).getStringCellValue();
@@ -240,6 +238,10 @@ public class Data {
 		
 	}
 	
+	public void readInEintrag(){
+		
+	}
+	
 	public void readInParameter(){
 		/**
 		 * Liest die benötigten Parameter ein
@@ -248,60 +250,96 @@ public class Data {
 		Workbook wbIn = wb;
 		Sheet shIn;
 		
-		//Sheet "Nachfrage"
-		shIn = wbIn.getSheet("Nachfrage");
-		int[][] demC = new int[Dienste.size()][Tage.size()];	//Demand matrix physicians
+		shIn = wb.getSheet("Tage");
+		Parameter.bgWk = (int)shIn.getRow(1).getCell(15).getNumericCellValue();			//Anfangswoche
+		Parameter.ctWk = (int)shIn.getRow(0).getCell(19).getNumericCellValue();;		//Anzahl Wochen
+		Parameter.week = new int[Parameter.ctWk+1]; 	//Range Wochen 0..AnzahlWochen
+		for(int i = 0; i<=Parameter.ctWk;i++){
+			Parameter.week[i] = i;
+		}
+		Parameter.lsWe = (int)shIn.getRow(3).getCell(19).getNumericCellValue();;		//Letztes Wochenende
+		Parameter.ctWe = (int)shIn.getRow(2).getCell(19).getNumericCellValue();;		//Anzahl Wochenenden	5
+		Parameter.whWk = new int[(Parameter.lsWe)]; 	//Range ganze WOchen	value 1..lsWe with index 0 - 4
+		for(int i = 0; i<Parameter.lsWe;i++){
+			Parameter.whWk[i] = i+1;
+		}
+		Parameter.szWh = Parameter.whWk.length;		//Amount of whole weeks: Anzahl ganze Wochen
+		Parameter.ctWd = (int)shIn.getRow(1).getCell(19).getNumericCellValue();	//Anzahl Werktage: countWorkingdays
+		Parameter.ctDs = (int)shIn.getRow(0).getCell(8).getNumericCellValue();			//amount of days in month
 		
-		//Sheet "NachfrageFA"
-		shIn = wbIn.getSheet("NachfrageFA");
-		int[][] demF = new int[Dienste.size()][Tage.size()];	//Demand matrix Facharzt
+		shIn = wb.getSheet("Nachfrage");
+		Parameter.demC = new int[Dienste.size()][Tage.size()];		//Demand matrix physicians		Dienste		Tage
+		System.out.println("Dienste size: " + Dienste.size());
+		System.out.println("Tage size: " + Tage.size());
+		System.out.println("Personen size: " + Personen.size()); 
+		for(int i = 0; i < Dienste.size();i++){
+			for(int j = 0; j < Tage.size();j++){
+				Parameter.demC[i][j] = (int)shIn.getRow((1+i)).getCell((8+j)).getNumericCellValue();	//ab I2 weil erst ab dem 1. des Monats Bedarfe berücksichtigt werden
+			}
+		}
 		
-		//Sheet "NachfrageOA"
-		shIn = wbIn.getSheet("NachfrageOA");
-		int[][] demO = new int[Dienste.size()][Tage.size()];	//Demand matrix Oberarzt
+		shIn = wb.getSheet("NachfrageFA");
+		Parameter.demF = new int[Dienste.size()][Tage.size()];		//Demand matrix Facharzt		Dienste		Tage
+		for(int i = 0; i < Dienste.size();i++){
+			for(int j = 0; j < Tage.size();j++){
+				Parameter.demF[i][j] = (int)shIn.getRow((1+i)).getCell((8+j)).getNumericCellValue();	//ab I2 weil erst ab dem 1. des Monats Bedarfe berücksichtigt werden
+			}
+		}
 		
-		//Sheet "Tage"
-		shIn = wbIn.getSheet("Tage");
-				
-		int bgWk;	//First week
-		int ctWk;	//Count of weeks
-//		int[] week;	//Range of weeks
-		int lsWe;	//last weekend
-		int ctWe;	//Count of weekends
-//		int[] whWk;	//Range of whole weeks
-		int szWW;	//Size of whole weeks
-		int ctWd;	//Anzahl Werktage: countWorkingdays
-		int ctPr;	//amount of physicians
+		shIn = wb.getSheet("NachfrageOA");
+		Parameter.demO = new int[Dienste.size()][Tage.size()];		//Demand matrix Oberarzt		Dienste		Tage
+		for(int i = 0; i < Dienste.size();i++){
+			for(int j = 0; j < Tage.size();j++){
+				Parameter.demO[i][j] = (int)shIn.getRow((1+i)).getCell((8+j)).getNumericCellValue();	//ab I2 weil erst ab dem 1. des Monats Bedarfe berücksichtigt werden
+			}
+		}
 		
-		//Sheet "Personal"
-		shIn = wbIn.getSheet("Personal");
-		int[][] qual = new int[Personen.size()][Dienste.size()];	//Qualifikation
-		int mxWs;	//aufeinanderfolgende Arbeitstage (7)
-		int bdDB;	//Amount of days between Bereitschaftsdienst
-//		int[] ioRn;	//Range 0 - 4: working patterns in intensivecare 
-//		int[] bdDR;	//Range 0 - (bdDB-1) for BD shifts
-//		int[] wsRn;	//0 - mxWs: used for workstrech condition: eigtl. 1 - 5 
-		int mnWf;	//minimum free weekends free (2) 
-		int wdWe;	//Working Days a Week
-		int mnFA; 	//Mindestanzahl an FA anwesend
-		float tmAc; //multiple of contract working time (1.5) upper bound
-		float avgA;	//multiple of contract working time (1.2) upper bound in 26-week cycle 
-		float avgO;	//multiple of contract working time (0.3) upper bound in 26-week cycle with opt-out
-		float tmAL;	//average time account limit
-		int pdAL;	//payed Account limit 
+		shIn = wb.getSheet("Personal");
+		Parameter.qual = new int[Personen.size()][Dienste.size()];	//Qualifikation					Personal	Dienste
+		for(int i = 0; i < Personen.size();i++){
+				for(int j = 0; j < Dienste.size();j++){
+					Parameter.qual[i][j] = (int)shIn.getRow((1+i)).getCell((14+j)).getNumericCellValue();	//ab O2 
+				}
+		}
+
+		Parameter.mxWs = (int)shIn.getRow(9).getCell(50).getNumericCellValue();	//aufeinanderfolgende Arbeitstage (7)
+//		Parameter.wsRn;	//0 - mxWs: used for workstrech condition	
+//		for...
+//		Parameter.ioRn;	//Range 0 - 4: wokring patterns in ensivecare 
+//		for...
+		Parameter.bdDB = (int)shIn.getRow(11).getCell(50).getNumericCellValue();	//Amount of days between Bereitschaftsdienst
+//		Parameter.bdDR;	//Range 0 - (bdDB-1) for BD shifts
+//		for...
+		Parameter.mnWf = (int)shIn.getRow(10).getCell(50).getNumericCellValue();	//minimum free weekends free (2) 
+		Parameter.ctPh = (int)shIn.getRow(0).getCell(50).getNumericCellValue();	//amount of physicians
+		Parameter.wdWe = new int[Personen.size()][6];		//Working Days a Week
+//		for...
+		Parameter.mnFA = (int)shIn.getRow(12).getCell(50).getNumericCellValue(); 	//Mindestanzahl an FA anwesend
+		Parameter.tmAc = shIn.getRow(13).getCell(50).getNumericCellValue(); 	//multiple of contract working time (1.5) upper bound
+		Parameter.avgA = shIn.getRow(14).getCell(50).getNumericCellValue();;	//multiple of contract working time (1.2) upper bound in 26-week cycle 
+		Parameter.avgO = shIn.getRow(15).getCell(50).getNumericCellValue();;	//multiple of contract working time (0.3) upper bound in 26-week cycle with opt-out
+		Parameter.tmAL = new double[Personen.size()];	//average time account limit
+//		for...
 		
-		//Sheet "Neuplanung"
-		shIn = wbIn.getSheet("Neuplanung");
-		int dNew; 	//Tag an dem Neugeplant wird
-		int ynNW; 	//Decision for replanning: yes/no
-		TInput[] inpt;// = new TInput[];	//Input for replanning
-		TInput[] rqNw;	//requests for replanning
-		TInput[] inNw;	//Eintrag neuplanung
+		shIn = wb.getSheet("Ergebnis");
+		Parameter.tFVl = new String[23];	//Target function values
+		for(int i = 0; i < Parameter.tFVl.length; i++){
+			Parameter.tFVl[i] = shIn.getRow(1+i).getCell(61).getStringCellValue();
+		}
+		Parameter.alph = new double[23];	//weight for target function values		TFVl
+		for(int i = 0; i < Parameter.alph.length; i++){
+			Parameter.alph[i] = shIn.getRow(1+i).getCell(62).getNumericCellValue();
+		}
+		Parameter.pdAL = (int)shIn.getRow(16).getCell(50).getNumericCellValue();		//payed Account limit 
 		
-// already initialized in readInTage		int ctDs;	//amount of days in month
-		int[] TFVl;	//Target function values
-		float alph;	//weight for target function values
-	
+		shIn = wb.getSheet("Neuplanung");
+		Parameter.dNew = (int)shIn.getRow(3).getCell(11).getNumericCellValue(); 	//Tag an dem Neugeplant wird
+		Parameter.ynNW = (int)shIn.getRow(1).getCell(12).getNumericCellValue(); 	//Decision for replanning: yes/no
+		//Größe herausfinden!!
+		//Solangs bis next row ="" oder so 
+		Parameter.inNW = new TInput[20];	//Input for replanning
+		Parameter.rqNw = new TInput[20];	//requests for replanning
+		Parameter.inNw = new TInput[20];	//Erag neuplanung
 		
 	}
 	

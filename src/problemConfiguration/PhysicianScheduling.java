@@ -23,6 +23,7 @@ public class PhysicianScheduling {
 		data.readInPersonen();
 		data.readInTage();
 		data.readInDienste();
+		data.readInParameter();
 		
 //		System.out.println("Hallo: " + data.sizeOfPersonen());
 //		for(Person p : data.Personen){

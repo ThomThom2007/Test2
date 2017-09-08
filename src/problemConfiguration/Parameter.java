@@ -5,36 +5,43 @@ public class Parameter {
 	 * Parameter erst nach den Mengen erzeugen, 
 	 * Mengen werden benötigt um die Parameter Arrays zu definieren.
 	 */
+	public static int 		bgWk;		//Anfangswoche
+	public static int 		ctWk;		//Anzahl Wochen
+	public static int[] 	week; 	//Range Wochen 0..AnzahlWochen
+	public static int 		lsWe;		//Letztes Wochenende
+	public static int 		ctWe;		//Anzahl Wochenenden
+	public static int[] 	whWk; 	//Range ganze WOchen	1..lsWe
+	public static int 		szWh;		//Amount of whole weeks: Anzahl ganze Wochen
 	
+	public static int[][]	demC;	//Demand matrix physicians		Dienste		Tage
+	public static int[][]	demF;	//Demand matrix Facharzt		Dienste		Tage
+	public static int[][]	demO;	//Demand matrix Oberarzt		Dienste		Tage
+	public static int[][]	qual;	//Qualifikation					Personal	Dienste
+	public static int 		ctWd;	//Anzahl Werktage: countWorkingdays
+	public static int 		mxWs;	//aufeinanderfolgende Arbeitstage (7)
+	public static int[] 	wsRn;	//0 - mxWs: used for workstrech condition	
+	public static int[] 	ioRn;	//Range 0 - 4: wokring patterns in intensivecare 
+	public static int 		bdDB;	//Amount of days between Bereitschaftsdienst
+	public static int[] 	bdDR;	//Range 0 - (bdDB-1) for BD shifts
+	public static int 		mnWf;	//minimum free weekends free (2) 
+	public static int 		ctDs;	//amount of days in month
+	public static int 		ctPh;	//amount of physicians
+	public static int[][] 	wdWe;	//Working Days a Week
+	public static int 		mnFA; 	//Mindestanzahl an FA anwesend
+	public static double 	tmAc; 	//multiple of contract working time (1.5) upper bound
+	public static double 	avgA;	//multiple of contract working time (1.2) upper bound in 26-week cycle 
+	public static double 	avgO;	//multiple of contract working time (0.3) upper bound in 26-week cycle with opt-out
+	public static double[] 	tmAL;	//average time account limit
 	
-	public static int demC;	//Demand matrix physicians
-	public static int demF;	//Demand matrix Facharzt
-	public static int demO;	//Demand matrix Oberarzt
-	public static int qual;	//Qualifikation
-	public static int ctWd;	//Anzahl Werktage: countWorkingdays
-	public static int mxWs;	//aufeinanderfolgende Arbeitstage (7)
-	public static int[] wsRn;	//0 - mxWs: used for workstrech condition
-	public static int[] ioRn;	//Range 0 - 4: wokring patterns in intensivecare 
-	public static int bdDB;	//Amount of days between Bereitschaftsdienst
-	public static int[] bdDR;	//Range 0 - (bdDB-1) for BD shifts
-	public static int mnWf;	//minimum free weekends free (2) 
-	public static int ctDs;	//amount of days in month
-	public static int ctPr;	//amount of physicians
-	public static int wdWe;	//Working Days a Week
-	public static int mnFA; 	//Mindestanzahl an FA anwesend
-	public static float tmAc; 	//multiple of contract working time (1.5) upper bound
-	public static float avgA;	//multiple of contract working time (1.2) upper bound in 26-week cycle 
-	public static float avgO;	//multiple of contract working time (0.3) upper bound in 26-week cycle with opt-out
-	public static float tmAL;	//average time account limit
-	public static int[] TFVl;	//Target function values
-	public static float alph;	//weight for target function values
+	public static String[] 	tFVl;	//Target function values
+	public static double[] 	alph;	//weight for target function values		TFVl
 	
-	public static int pdAL;	//payed Account limit 
-	public static int dNew; 	//Tag an dem Neugeplant wird
-	public static int ynNW; 	//Decision for replanning: yes/no
-	public static int[] inpt;	//Input for replanning
-	public static int[] rqNw;	//requests for replanning
-	public static int[] inNw;	//Eintrag neuplanung
+	public static int 		pdAL;	//payed Account limit 
+	public static int 		dNew; 	//Tag an dem Neugeplant wird
+	public static int 		ynNW; 	//Decision for replanning: yes/no
+	public static TInput[] 	inNW;	//Input for replanning
+	public static TInput[] 	rqNw;	//requests for replanning
+	public static TInput[] 	inNw;	//Eintrag neuplanung
 	
 	
 }
